@@ -11,5 +11,6 @@ fn read_day(day_no: u8) -> String {
 }
 
 fn main() {
-    println!("{}", day1::solve(&read_day(1)));
+    //println!("{}", day1::solve(&read_day(1)));
+    println!("{}", day1::solve_part2(&read_day(1)));
 }
