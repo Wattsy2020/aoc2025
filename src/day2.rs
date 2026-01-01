@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::str::FromStr;
 
 #[derive(Debug)]
@@ -73,16 +74,6 @@ fn find_invalid_ids_from_number(
     start_decimal_place: u32,
     repetition_distance: u32,
 ) -> Vec<i64> {
-    // check if we reached the second repetition,
-    // in which case this number is already repeated twice and thus is an invalid id
-    if current_decimal_place + repetition_distance == start_decimal_place {
-        return if range.in_range(current_num) {
-            vec![current_num]
-        } else {
-            vec![]
-        };
-    }
-
     // try all possible numbers for this first digit
     (0..10)
         .map(|digit| {
@@ -99,6 +90,16 @@ fn find_invalid_ids_from_number(
             // if the number is less than the min, even if the remaining places were set to 99999..., then it can't be a solution
             && num + 10i64.pow(current_decimal_place) - 1 >= range.start)
         .flat_map(|num| {
+            // check if the next iteration reaches the numbers that have already been repeated,
+            // in which case this number's digits are already completely filled, and thus can check if it's an invalid id
+            if current_decimal_place + repetition_distance == start_decimal_place + 1 {
+                return if range.in_range(num) {
+                    vec![num]
+                } else {
+                    vec![]
+                };
+            }
+
             find_invalid_ids_from_number(
                 range,
                 num,
@@ -154,12 +155,63 @@ fn find_invalid_ids(range: &Range) -> Vec<i64> {
         .collect()
 }
 
+#[allow(dead_code)]
 pub fn solve_part1(input: &str) -> i64 {
     parse_input(input).iter().flat_map(find_invalid_ids).sum()
 }
 
+/// Calculate factors of a number
+fn factors(num: i64) -> Vec<i64> {
+    let mut factors = vec![];
+    for i in 2..=num.isqrt() {
+        if num % i == 0 {
+            factors.push(i);
+            factors.push(num / i);
+        }
+    }
+    factors
+}
+
 // part2: same general principle but we have to generalise find_invalid_ids
 // to take a `num_repetitions` parameter, then call it with all possible repetitions for that number of decimal places
+fn find_invalid_ids_part2(range: &Range) -> Vec<i64> {
+    get_decimal_place_aligned_ranges(range)
+        .into_iter()
+        .flat_map(|range| {
+            let num_digits = num_digits(range.start);
+            if num_digits <= 1 {
+                return HashSet::new();
+            }
+            let start_decimal_place = num_digits - 1;
+
+            // we can repeat numbers using a repetition that evenly divides the number of digits in the number
+            let mut repetition_distances = factors(num_digits as i64);
+            repetition_distances.push(1);
+
+            repetition_distances
+                .iter()
+                .flat_map(|repetition_distance| {
+                    find_invalid_ids_from_number(
+                        &range,
+                        0,
+                        start_decimal_place,
+                        start_decimal_place,
+                        *repetition_distance as u32,
+                    )
+                })
+                // use HashSet to remove duplicate results
+                // (e.g. 1111 is 11 repeating twice, and 1 repeating four times)
+                .collect::<HashSet<i64>>()
+        })
+        .collect()
+}
+
+pub fn solve_part2(input: &str) -> i64 {
+    parse_input(input)
+        .iter()
+        .flat_map(find_invalid_ids_part2)
+        .sum()
+}
 
 #[cfg(test)]
 mod tests {
@@ -230,6 +282,22 @@ mod tests {
             vec![
                 11, 22, 33, 44, 55, 66, 77, 88, 99, 1010, 1111, 1212, 1313, 1414, 1515, 1616, 1717,
                 1818, 1919, 2020, 2121, 2222
+            ]
+        )
+    }
+
+    #[test]
+    fn test_find_invalid_ids_part2() {
+        let mut results = find_invalid_ids_part2(&Range {
+            start: 0,
+            end: 2300,
+        });
+        results.sort();
+        assert_eq!(
+            results,
+            vec![
+                11, 22, 33, 44, 55, 66, 77, 88, 99, 111, 222, 333, 444, 555, 666, 777, 888, 999,
+                1010, 1111, 1212, 1313, 1414, 1515, 1616, 1717, 1818, 1919, 2020, 2121, 2222
             ]
         )
     }

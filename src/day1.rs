@@ -61,6 +61,7 @@ pub fn solve(problem_input: &str) -> u32 {
 
 // when rotating right: (current pos + magnitude) / 100 (integer division) gives the number of rotations past 100
 // when rotating left: (100 - current pos + magnitude) / 100
+#[allow(dead_code)]
 pub fn solve_part2(problem_input: &str) -> u32 {
     let instructions = parse_instructions(problem_input);
 
