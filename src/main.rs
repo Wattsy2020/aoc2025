@@ -17,5 +17,6 @@ fn main() {
     //println!("{}", day1::solve_part2(&read_day(1)));
     //println!("{}", day2::solve_part1(&read_day(2)));
     //println!("{}", day2::solve_part2(&read_day(2)));
-    println!("{}", day3::solve_part1(&read_day(3)));
+    //println!("{}", day3::solve_part1(&read_day(3)));
+    println!("{}", day3::solve_part2(&read_day(3)));
 }

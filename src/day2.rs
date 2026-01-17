@@ -88,7 +88,7 @@ fn find_invalid_ids_from_number(
             // if the number is already greater than max, it will only get larger, thus isn't a solution
             *num <= range.end
             // if the number is less than the min, even if the remaining places were set to 99999..., then it can't be a solution
-            && num + 10i64.pow(current_decimal_place) - 1 >= range.start)
+            && num + 10i64.pow(current_decimal_place) > range.start)
         .flat_map(|num| {
             // check if the next iteration reaches the numbers that have already been repeated,
             // in which case this number's digits are already completely filled, and thus can check if it's an invalid id
