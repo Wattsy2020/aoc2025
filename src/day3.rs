@@ -1,20 +1,18 @@
 use std::cmp::max;
-use std::num::ParseIntError;
-use std::str::FromStr;
 
 struct Bank {
-    joltages: Vec<u8>,
+    joltages: Vec<u32>,
 }
 
-fn parse_bank(line: &str) -> Result<Bank, ParseIntError> {
-    let joltages: Result<Vec<u8>, ParseIntError> = line
+fn parse_bank(line: &str) -> Option<Bank> {
+    let joltages: Option<Vec<u32>>= line
         .chars()
-        .map(|char| u8::from_str(&char.to_string()))
+        .map(|char| char.to_digit(10))
         .collect();
     joltages.map(|joltages| Bank { joltages })
 }
 
-fn parse_input(contents: &str) -> Result<Vec<Bank>, ParseIntError> {
+fn parse_input(contents: &str) -> Option<Vec<Bank>> {
     contents.lines().map(parse_bank).collect()
 }
 
@@ -25,7 +23,7 @@ fn find_max_joltage(bank: &Bank) -> u32 {
     let mut max_starter = 0;
     let mut max_combination = 0u32;
     for joltage in bank.joltages.iter() {
-        let new_combination = (max_starter as u32) * 10 + (*joltage as u32);
+        let new_combination = max_starter * 10 + joltage;
         max_combination = max(max_combination, new_combination);
         max_starter = max(max_starter, *joltage);
     }
@@ -55,7 +53,7 @@ pub fn solve_part1(contents: &str) -> u32 {
 // (e.g. taking the first 8 if there are multiple 8s)
 // Then in second iteration we find the highest digit to start the second part of the number
 // Would be O(n*12) or O(nk) where k = 12
-fn find_max_joltage_inner(remaining_batteries: &[u8], num_batteries_to_take: u8) -> u64 {
+fn find_max_joltage_inner(remaining_batteries: &[u32], num_batteries_to_take: u8) -> u64 {
     if num_batteries_to_take == 0 {
         return 0;
     }
