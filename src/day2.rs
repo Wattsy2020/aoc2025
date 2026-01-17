@@ -206,6 +206,7 @@ fn find_invalid_ids_part2(range: &Range) -> Vec<i64> {
         .collect()
 }
 
+#[allow(dead_code)]
 pub fn solve_part2(input: &str) -> i64 {
     parse_input(input)
         .iter()
